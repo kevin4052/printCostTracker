@@ -1,0 +1,66 @@
+@model IEnumerable<printCostTracker.Models.PrintJob>
+
+@{
+    ViewData["Title"] = "Print Jobs";
+}
+
+<h1>Print Jobs</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Print Job</a>
+</p>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <strong>Database Test:</strong> 
+            <a href="/api/test-db" target="_blank">Test Database Connection</a>
+        </div>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Material</th>
+                <th>Total Cost</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Material?.Name</td>
+                    <td>$@item.TotalCost.ToString("F2")</td>
+                    <td>@item.CreatedAt.ToString("MM/dd/yyyy HH:mm")</td>
+                    <td>
+                        @if (item.CompletedAt.HasValue)
+                        {
+                            <span class="badge bg-success">Completed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">In Progress</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning">
+        No print jobs found. <a asp-action="Create">Create your first print job</a>.
+    </div>
+} 
