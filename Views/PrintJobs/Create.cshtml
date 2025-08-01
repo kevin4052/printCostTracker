@@ -35,14 +35,99 @@
                 <span asp-validation-for="MaterialId" class="text-danger"></span>
             </div>
             
+            <div class="form-group mb-3">
+                <label for="MaterialWeight" class="control-label">Material Weight (grams)</label>
+                <input type="number" id="MaterialWeight" name="MaterialWeight" class="form-control" step="0.01" min="0" />
+                <small class="form-text text-muted">Enter the weight of material used for this print job</small>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="EstimatedPrintTime" class="control-label">Estimated Print Time (hours)</label>
+                <input type="number" id="EstimatedPrintTime" name="EstimatedPrintTime" class="form-control" step="0.1" min="0" />
+                <small class="form-text text-muted">Enter the estimated time to complete this print job</small>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="PrinterId" class="control-label">Printer</label>
+                <select id="PrinterId" name="PrinterId" class="form-control">
+                    <option value="">-- Select Printer --</option>
+                    @if (ViewBag.Printers != null)
+                    {
+                        @foreach (var printer in ViewBag.Printers)
+                        {
+                            <option value="@printer.Id">@printer.Name - @printer.Brand @printer.Model</option>
+                        }
+                    }
+                </select>
+                <small class="form-text text-muted">Select the printer to use for this job</small>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label for="PrintSettings" class="control-label">Print Settings</label>
+                <textarea id="PrintSettings" name="PrintSettings" class="form-control" rows="2" placeholder="Layer height, infill, speed, etc."></textarea>
+                <small class="form-text text-muted">Optional: Document important print settings</small>
+            </div>
+            
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Cost Estimation</h5>
+            </div>
+            <div class="card-body">
+                <div id="costEstimation">
+                    <p class="text-muted">Select a material and enter weight to see cost estimation</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Cost estimation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const materialSelect = document.getElementById('MaterialId');
+            const weightInput = document.getElementById('MaterialWeight');
+            const costEstimation = document.getElementById('costEstimation');
+            
+            function updateCostEstimation() {
+                const selectedMaterial = materialSelect.options[materialSelect.selectedIndex];
+                const weight = parseFloat(weightInput.value) || 0;
+                
+                if (selectedMaterial && selectedMaterial.value && weight > 0) {
+                    const costPerGram = parseFloat(selectedMaterial.text.match(/\$([\d.]+)/)[1]);
+                    const estimatedCost = weight * costPerGram;
+                    
+                    costEstimation.innerHTML = `
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Material Cost:</strong><br>
+                                <span class="text-primary">$${estimatedCost.toFixed(2)}</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Weight:</strong><br>
+                                <span>${weight}g</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <small class="text-muted">This is an estimate based on material cost only. Additional costs (electricity, labor, etc.) will be added separately.</small>
+                    `;
+                } else {
+                    costEstimation.innerHTML = '<p class="text-muted">Select a material and enter weight to see cost estimation</p>';
+                }
+            }
+            
+            materialSelect.addEventListener('change', updateCostEstimation);
+            weightInput.addEventListener('input', updateCostEstimation);
+        });
+    </script>
 } 

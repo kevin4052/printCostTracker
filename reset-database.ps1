@@ -28,8 +28,8 @@ if (Test-Path $dbFile) {
 }
 
 Write-Host "Step 3: Removing migration files..." -ForegroundColor Cyan
-# Remove all migration files from the Data/Migrations directory
-$migrationsDir = "Data\Migrations"
+# Remove all migration files from the Migrations directory
+$migrationsDir = "Migrations"
 if (Test-Path $migrationsDir) {
     Get-ChildItem -Path $migrationsDir -Filter "*.cs" | Remove-Item -Force
     Write-Host "Migration files removed from: $migrationsDir" -ForegroundColor Green

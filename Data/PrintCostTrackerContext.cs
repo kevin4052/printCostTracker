@@ -26,6 +26,12 @@ public class PrintCostTrackerContext : DbContext
             .HasForeignKey(p => p.MaterialId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<PrintJob>()
+            .HasOne(p => p.Printer)
+            .WithMany()
+            .HasForeignKey(p => p.PrinterId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         modelBuilder.Entity<Cost>()
             .HasOne(c => c.PrintJob)
             .WithMany(p => p.Costs)
@@ -44,6 +50,14 @@ public class PrintCostTrackerContext : DbContext
         modelBuilder.Entity<PrintJob>()
             .Property(p => p.TotalCost)
             .HasPrecision(10, 2);
+
+        modelBuilder.Entity<PrintJob>()
+            .Property(p => p.MaterialWeight)
+            .HasPrecision(10, 2);
+
+        modelBuilder.Entity<PrintJob>()
+            .Property(p => p.EstimatedPrintTime)
+            .HasPrecision(8, 2);
 
         modelBuilder.Entity<Cost>()
             .Property(c => c.Amount)

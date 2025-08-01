@@ -30,8 +30,8 @@ else
 fi
 
 echo "Step 3: Removing migration files..."
-# Remove all migration files from the Data/Migrations directory
-MIGRATIONS_DIR="Data/Migrations"
+# Remove all migration files from the Migrations directory
+MIGRATIONS_DIR="Migrations"
 if [ -d "$MIGRATIONS_DIR" ]; then
     find "$MIGRATIONS_DIR" -name "*.cs" -type f -delete
     echo "Migration files removed from: $MIGRATIONS_DIR"

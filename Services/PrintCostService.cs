@@ -42,6 +42,7 @@ public class PrintCostService : IPrintCostService
     {
         return await _context.PrintJobs
             .Include(p => p.Material)
+            .Include(p => p.Printer)
             .Include(p => p.Costs)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
@@ -51,6 +52,7 @@ public class PrintCostService : IPrintCostService
     {
         return await _context.PrintJobs
             .Include(p => p.Material)
+            .Include(p => p.Printer)
             .Include(p => p.Costs)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
