@@ -1,0 +1,87 @@
+@model printCostTracker.Models.Printer
+
+@{
+    ViewData["Title"] = "Printer Details";
+}
+
+<h1>Printer Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Description</dt>
+        <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.Description) ? "-" : Model.Description)</dd>
+
+        <dt class="col-sm-2">Brand</dt>
+        <dd class="col-sm-10">@Model.Brand</dd>
+
+        <dt class="col-sm-2">Model</dt>
+        <dd class="col-sm-10">@Model.Model</dd>
+
+        <dt class="col-sm-2">Serial Number</dt>
+        <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.SerialNumber) ? "-" : Model.SerialNumber)</dd>
+
+        <dt class="col-sm-2">Price</dt>
+        <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.Price) ? "-" : Model.Price)</dd>
+
+        <dt class="col-sm-2">Purchase Date</dt>
+        <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.PurchaseDate) ? "-" : Model.PurchaseDate)</dd>
+
+        <dt class="col-sm-2">Location</dt>
+        <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.Location) ? "-" : Model.Location)</dd>
+
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10">
+            @switch (Model.Status)
+            {
+                case "Active":
+                    <span class="badge bg-success">Active</span>
+                    break;
+                case "Inactive":
+                    <span class="badge bg-secondary">Inactive</span>
+                    break;
+                case "InRepair":
+                    <span class="badge bg-warning">In Repair</span>
+                    break;
+                case "InStorage":
+                    <span class="badge bg-info">In Storage</span>
+                    break;
+                case "InTransit":
+                    <span class="badge bg-primary">In Transit</span>
+                    break;
+                case "InUse":
+                    <span class="badge bg-primary">In Use</span>
+                    break;
+                default:
+                    <span class="badge bg-secondary">@Model.Status</span>
+                    break;
+            }
+        </dd>
+
+        <dt class="col-sm-2">Printer Type</dt>
+        <dd class="col-sm-10">@Model.PrinterType</dd>
+
+        <dt class="col-sm-2">Printer Size</dt>
+        <dd class="col-sm-10">@Model.PrinterSize</dd>
+
+        <dt class="col-sm-2">Printing Lifetime</dt>
+        <dd class="col-sm-10">@Model.PrintingLifetime hours</dd>
+
+        <dt class="col-sm-2">Watts per Hour</dt>
+        <dd class="col-sm-10">@Model.WattsPerHour W</dd>
+
+        <dt class="col-sm-2">Cost per Hour</dt>
+        <dd class="col-sm-10">$@Model.CostPerHour.ToString("F2")</dd>
+
+        <dt class="col-sm-2">Notes</dt>
+        <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.Notes) ? "-" : Model.Notes)</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div> 

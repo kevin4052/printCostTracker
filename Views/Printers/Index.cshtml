@@ -1,0 +1,81 @@
+@model IEnumerable<printCostTracker.Models.Printer>
+
+@{
+    ViewData["Title"] = "Printers";
+}
+
+<h1>Printers</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Printer</a>
+</p>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Model</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Cost/Hour</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Brand</td>
+                    <td>@item.Model</td>
+                    <td>@item.PrinterType</td>
+                    <td>@item.PrinterSize</td>
+                    <td>@(string.IsNullOrEmpty(item.Location) ? "-" : item.Location)</td>
+                    <td>
+                        @switch (item.Status)
+                        {
+                            case "Active":
+                                <span class="badge bg-success">Active</span>
+                                break;
+                            case "Inactive":
+                                <span class="badge bg-secondary">Inactive</span>
+                                break;
+                            case "InRepair":
+                                <span class="badge bg-warning">In Repair</span>
+                                break;
+                            case "InStorage":
+                                <span class="badge bg-info">In Storage</span>
+                                break;
+                            case "InTransit":
+                                <span class="badge bg-primary">In Transit</span>
+                                break;
+                            case "InUse":
+                                <span class="badge bg-primary">In Use</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@item.Status</span>
+                                break;
+                        }
+                    </td>
+                    <td>$@item.CostPerHour.ToString("F2")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning">
+        No printers found. <a asp-action="Create">Create your first printer</a>.
+    </div>
+} 
