@@ -40,7 +40,7 @@ public class PrintersController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Name,Description,Brand,Model,SerialNumber,Price,PurchaseDate,Location,Status,Notes,PrinterType,PrinterSize,PrintingLifetime,WattsPerHour,CostPerHour")] Printer printer)
+    public async Task<IActionResult> Create([Bind("Name,Description,Brand,Model,SerialNumber,Price,PurchaseDate,Location,Status,Notes,PrinterType,PrinterSize,PrintingLifetime,PrinterLifetimeCost,WattsPerHour,CostPerHour")] Printer printer)
     {
         if (ModelState.IsValid)
         {
@@ -62,7 +62,7 @@ public class PrintersController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Brand,Model,SerialNumber,Price,PurchaseDate,Location,Status,Notes,PrinterType,PrinterSize,PrintingLifetime,WattsPerHour,CostPerHour")] Printer printer)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Brand,Model,SerialNumber,Price,PurchaseDate,Location,Status,Notes,PrinterType,PrinterSize,PrintingLifetime,PrinterLifetimeCost,WattsPerHour,CostPerHour")] Printer printer)
     {
         if (id != printer.Id)
         {

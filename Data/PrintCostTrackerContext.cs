@@ -44,8 +44,12 @@ public class PrintCostTrackerContext : DbContext
             .HasPrecision(10, 4);
 
         modelBuilder.Entity<Material>()
-            .Property(m => m.Density)
+            .Property(m => m.SpoolWeight)
             .HasPrecision(8, 3);
+
+        modelBuilder.Entity<Material>()
+            .Property(m => m.CostPerSpool)
+            .HasPrecision(10, 2);
 
         modelBuilder.Entity<PrintJob>()
             .Property(p => p.TotalCost)
@@ -179,8 +183,9 @@ public class PrintCostTrackerContext : DbContext
                 Id = 1,
                 Name = "PLA",
                 Description = "Polylactic Acid - Common 3D printing material",
-                CostPerGram = 0.0250m,
-                Density = 1.24m,
+                CostPerGram = 0.0200m,
+                SpoolWeight = 1.0m,
+                CostPerSpool = 20.00m,
                 MaterialType = 0, // PLA
                 Color = "White",
                 IsActive = true,
@@ -192,7 +197,8 @@ public class PrintCostTrackerContext : DbContext
                 Name = "ABS",
                 Description = "Acrylonitrile Butadiene Styrene - Strong and durable",
                 CostPerGram = 0.0300m,
-                Density = 1.04m,
+                SpoolWeight = 1.0m,
+                CostPerSpool = 30.00m,
                 MaterialType = 1, // ABS
                 Color = "Black",
                 IsActive = true,
@@ -204,7 +210,8 @@ public class PrintCostTrackerContext : DbContext
                 Name = "PETG",
                 Description = "Polyethylene Terephthalate Glycol - Good balance of properties",
                 CostPerGram = 0.0350m,
-                Density = 1.27m,
+                SpoolWeight = 1.0m,
+                CostPerSpool = 35.00m,
                 MaterialType = 2, // PETG
                 Color = "Clear",
                 IsActive = true,
@@ -217,21 +224,22 @@ public class PrintCostTrackerContext : DbContext
             new Printer
             {
                 Id = 1,
-                Name = "Ender 3 Pro",
+                Name = "BambuLab A1 Combo",
                 Description = "Popular FDM 3D printer",
-                Brand = "Creality",
-                Model = "Ender 3 Pro",
-                SerialNumber = "EP001",
-                Price = "299.99",
+                Brand = "BambuLab",
+                Model = "A1 Combo",
+                SerialNumber = "BL001",
+                Price = "550.00",
                 PurchaseDate = "2023-01-15",
                 Location = "Workshop A",
                 Status = "Active",
                 Notes = "Main production printer",
                 PrinterType = "FDM",
-                PrinterSize = "_220x220x250",
-                PrintingLifetime = 1000,
-                WattsPerHour = 200,
-                CostPerHour = 2
+                PrinterSize = "_256x256x256",
+                PrintingLifetime = 3000,
+                PrinterLifetimeCost = 0,
+                WattsPerHour = 120,
+                CostPerHour = 0.27m
             },
             new Printer
             {
@@ -249,6 +257,7 @@ public class PrintCostTrackerContext : DbContext
                 PrinterType = "SLA",
                 PrinterSize = "_143x89x165",
                 PrintingLifetime = 500,
+                PrinterLifetimeCost = 0,
                 WattsPerHour = 150,
                 CostPerHour = 1
             }

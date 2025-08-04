@@ -19,7 +19,8 @@
                 <th>Type</th>
                 <th>Color</th>
                 <th>Cost per Gram</th>
-                <th>Density</th>
+                <th>Spool Weight</th>
+                <th>Cost per Spool</th>
                 <th>Status</th>
                 <th>Created</th>
                 <th>Actions</th>
@@ -33,7 +34,8 @@
                     <td>@((MaterialType)item.MaterialType)</td>
                     <td>@(string.IsNullOrEmpty(item.Color) ? "-" : item.Color)</td>
                     <td>$@item.CostPerGram.ToString("F3")</td>
-                    <td>@item.Density.ToString("F2") g/cm³</td>
+                    <td>@item.SpoolWeight.ToString("F2") kg</td>
+                    <td>$@item.CostPerSpool.ToString("F2")</td>
                     <td>
                         @if (item.IsActive)
                         {

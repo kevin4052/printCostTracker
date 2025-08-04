@@ -16,8 +16,9 @@ public class Printer
     public string PrinterType { get; set; } = string.Empty;
     public string PrinterSize { get; set; } = string.Empty;
     public int PrintingLifetime { get; set; } = 0;
+    public int PrinterLifetimeCost { get; set; } = 0;
     public int WattsPerHour { get; set; } = 0;
-    public int CostPerHour { get; set; } = 0;
+    public decimal CostPerHour { get; set; } = 0;
 }
 
 public enum PrinterType

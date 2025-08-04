@@ -47,15 +47,21 @@
             </div>
             
             <div class="form-group mb-3">
+                <label asp-for="SpoolWeight" class="control-label">Spool Weight (kg)</label>
+                <input asp-for="SpoolWeight" class="form-control" type="number" step="0.01" min="0" />
+                <span asp-validation-for="SpoolWeight" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
                 <label asp-for="CostPerGram" class="control-label">Cost per Gram ($)</label>
                 <input asp-for="CostPerGram" class="form-control" type="number" step="0.001" min="0" />
                 <span asp-validation-for="CostPerGram" class="text-danger"></span>
             </div>
             
             <div class="form-group mb-3">
-                <label asp-for="Density" class="control-label">Density (g/cm³)</label>
-                <input asp-for="Density" class="form-control" type="number" step="0.01" min="0" />
-                <span asp-validation-for="Density" class="text-danger"></span>
+                <label asp-for="CostPerSpool" class="control-label">Cost per Spool ($)</label>
+                <input asp-for="CostPerSpool" class="form-control" type="number" step="0.01" min="0" />
+                <span asp-validation-for="CostPerSpool" class="text-danger"></span>
             </div>
             
             <div class="form-group mb-3">

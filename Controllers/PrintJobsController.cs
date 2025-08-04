@@ -44,24 +44,25 @@ public class PrintJobsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("Name,Description,MaterialId,MaterialWeight,EstimatedPrintTime,PrinterId,PrintSettings")] PrintJob printJob)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            // Calculate total cost based on material weight
-            if (printJob.MaterialWeight > 0 && printJob.MaterialId > 0)
-            {
-                var material = await _printCostService.GetMaterialByIdAsync(printJob.MaterialId);
-                if (material != null)
-                {
-                    printJob.TotalCost = printJob.MaterialWeight * material.CostPerGram;
-                }
-            }
-            
-            await _printCostService.CreatePrintJobAsync(printJob);
-            return RedirectToAction(nameof(Index));
+            ViewBag.Materials = await _printCostService.GetMaterialsAsync();
+            ViewBag.Printers = await _printCostService.GetPrintersAsync();
+            return View(printJob);
         }
-        ViewBag.Materials = await _printCostService.GetMaterialsAsync();
-        ViewBag.Printers = await _printCostService.GetPrintersAsync();
-        return View(printJob);
+
+        // Calculate total cost based on material weight
+        if (printJob.MaterialWeight > 0 && printJob.MaterialId > 0)
+        {
+            var material = await _printCostService.GetMaterialByIdAsync(printJob.MaterialId);
+            if (material != null)
+            {
+                printJob.TotalCost = printJob.MaterialWeight * material.CostPerGram;
+            }
+        }
+            
+        await _printCostService.CreatePrintJobAsync(printJob);
+        return RedirectToAction(nameof(Index));        
     }
 
     // API endpoint to test database connection

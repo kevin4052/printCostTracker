@@ -13,11 +13,13 @@ public class Material
     [StringLength(500)]
     public string? Description { get; set; }
     
-    public decimal CostPerGram { get; set; }
-    
-    public decimal Density { get; set; } // g/cm³
-
     public int MaterialType { get; set; }
+
+    public decimal SpoolWeight { get; set; } // kg
+    
+    public decimal CostPerGram { get; set; } // $/g
+    
+    public decimal CostPerSpool { get; set; } // $
     
     [StringLength(50)]
     public string? Color { get; set; }

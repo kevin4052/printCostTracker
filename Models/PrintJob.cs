@@ -20,7 +20,7 @@ public class PrintJob
     public decimal TotalCost { get; set; }
     
     public int MaterialId { get; set; }
-    public Material Material { get; set; } = null!;
+    public Material? Material { get; set; } = null!;
     
     [Range(0, double.MaxValue, ErrorMessage = "Material weight must be a positive number")]
     public decimal MaterialWeight { get; set; }

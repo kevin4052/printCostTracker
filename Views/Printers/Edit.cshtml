@@ -110,6 +110,12 @@
             </div>
             
             <div class="form-group mb-3">
+                <label asp-for="PrinterLifetimeCost" class="control-label">Printer Lifetime Cost ($)</label>
+                <input asp-for="PrinterLifetimeCost" class="form-control" type="number" min="0" />
+                <span asp-validation-for="PrinterLifetimeCost" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
                 <label asp-for="WattsPerHour" class="control-label">Watts per Hour</label>
                 <input asp-for="WattsPerHour" class="form-control" type="number" min="0" />
                 <span asp-validation-for="WattsPerHour" class="text-danger"></span>
