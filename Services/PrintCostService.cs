@@ -81,10 +81,17 @@ public class PrintCostService : IPrintCostService
         }
     }
 
-    public async Task<List<Material>> GetMaterialsAsync()
+    public async Task<List<Material>> GetActiveMaterialsAsync()
     {
         return await _context.Materials
             .Where(m => m.IsActive)
+            .OrderBy(m => m.Name)
+            .ToListAsync();
+    }
+
+    public async Task<List<Material>> GetMaterialsAsync()
+    {
+        return await _context.Materials
             .OrderBy(m => m.Name)
             .ToListAsync();
     }
@@ -96,6 +103,12 @@ public class PrintCostService : IPrintCostService
 
     public async Task<Material> CreateMaterialAsync(Material material)
     {
+        // Calculate CostPerGram if SpoolWeight and CostPerSpool are provided
+        if (material.SpoolWeight > 0 && material.CostPerSpool > 0)
+        {
+            material.CostPerGram = material.CostPerSpool / (material.SpoolWeight * 1000);
+        }
+        
         _context.Materials.Add(material);
         await _context.SaveChangesAsync();
         return material;
@@ -103,6 +116,12 @@ public class PrintCostService : IPrintCostService
 
     public async Task<Material> UpdateMaterialAsync(Material material)
     {
+        // Calculate CostPerGram if SpoolWeight and CostPerSpool are provided
+        if (material.SpoolWeight > 0 && material.CostPerSpool > 0)
+        {
+            material.CostPerGram = material.CostPerSpool / (material.SpoolWeight * 1000);
+        }
+        
         _context.Entry(material).State = EntityState.Modified;
         await _context.SaveChangesAsync();
         return material;

@@ -40,7 +40,7 @@ public class MaterialsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Name,Description,CostPerGram,Density,MaterialType,Color,IsActive")] Material material)
+    public async Task<IActionResult> Create([Bind("Name,Description,SpoolWeight,CostPerSpool,CostPerGram,MaterialType,Color,IsActive")] Material material)
     {
         if (ModelState.IsValid)
         {
@@ -62,7 +62,7 @@ public class MaterialsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,CostPerGram,Density,MaterialType,Color,IsActive,CreatedAt")] Material material)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,SpoolWeight,CostPerSpool,CostPerGram,MaterialType,Color,IsActive,CreatedAt")] Material material)
     {
         if (id != material.Id)
         {
