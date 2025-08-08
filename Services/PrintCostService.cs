@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using printCostTracker.Data;
 using printCostTracker.Models;
+using printCostTracker.Repositories;
 
 namespace printCostTracker.Services;
 
@@ -31,171 +30,115 @@ public interface IPrintCostService
 
 public class PrintCostService : IPrintCostService
 {
-    private readonly PrintCostTrackerContext _context;
+    private readonly IPrintJobRepository _printJobRepository;
+    private readonly IMaterialRepository _materialRepository;
+    private readonly ICostRepository _costRepository;
+    private readonly IPrinterRepository _printerRepository;
 
-    public PrintCostService(PrintCostTrackerContext context)
+    public PrintCostService(
+        IPrintJobRepository printJobRepository,
+        IMaterialRepository materialRepository,
+        ICostRepository costRepository,
+        IPrinterRepository printerRepository)
     {
-        _context = context;
+        _printJobRepository = printJobRepository;
+        _materialRepository = materialRepository;
+        _costRepository = costRepository;
+        _printerRepository = printerRepository;
     }
 
     public async Task<List<PrintJob>> GetPrintJobsAsync()
     {
-        return await _context.PrintJobs
-            .Include(p => p.Material)
-            .Include(p => p.Printer)
-            .Include(p => p.Costs)
-            .OrderByDescending(p => p.CreatedAt)
-            .ToListAsync();
+        return await _printJobRepository.GetPrintJobsAsync();
     }
 
     public async Task<PrintJob?> GetPrintJobByIdAsync(int id)
     {
-        return await _context.PrintJobs
-            .Include(p => p.Material)
-            .Include(p => p.Printer)
-            .Include(p => p.Costs)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        return await _printJobRepository.GetPrintJobByIdAsync(id);
     }
 
     public async Task<PrintJob> CreatePrintJobAsync(PrintJob printJob)
     {
-        _context.PrintJobs.Add(printJob);
-        await _context.SaveChangesAsync();
-        return printJob;
+        return await _printJobRepository.CreatePrintJobAsync(printJob);
     }
 
     public async Task<PrintJob> UpdatePrintJobAsync(PrintJob printJob)
     {
-        _context.Entry(printJob).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-        return printJob;
+        return await _printJobRepository.UpdatePrintJobAsync(printJob);
     }
 
     public async Task DeletePrintJobAsync(int id)
     {
-        var printJob = await _context.PrintJobs.FindAsync(id);
-        if (printJob != null)
-        {
-            _context.PrintJobs.Remove(printJob);
-            await _context.SaveChangesAsync();
-        }
+        await _printJobRepository.DeletePrintJobAsync(id);
     }
 
     public async Task<List<Material>> GetActiveMaterialsAsync()
     {
-        return await _context.Materials
-            .Where(m => m.IsActive)
-            .OrderBy(m => m.Name)
-            .ToListAsync();
+        return await _materialRepository.GetActiveMaterialsAsync();
     }
 
     public async Task<List<Material>> GetMaterialsAsync()
     {
-        return await _context.Materials
-            .OrderBy(m => m.Name)
-            .ToListAsync();
+        return await _materialRepository.GetMaterialsAsync();
     }
 
     public async Task<Material?> GetMaterialByIdAsync(int id)
     {
-        return await _context.Materials.FindAsync(id);
+        return await _materialRepository.GetMaterialByIdAsync(id);
     }
 
     public async Task<Material> CreateMaterialAsync(Material material)
     {
-        // Calculate CostPerGram if SpoolWeight and CostPerSpool are provided
-        if (material.SpoolWeight > 0 && material.CostPerSpool > 0)
-        {
-            material.CostPerGram = material.CostPerSpool / (material.SpoolWeight * 1000);
-        }
-        
-        _context.Materials.Add(material);
-        await _context.SaveChangesAsync();
-        return material;
+        return await _materialRepository.CreateMaterialAsync(material);
     }
 
     public async Task<Material> UpdateMaterialAsync(Material material)
     {
-        // Calculate CostPerGram if SpoolWeight and CostPerSpool are provided
-        if (material.SpoolWeight > 0 && material.CostPerSpool > 0)
-        {
-            material.CostPerGram = material.CostPerSpool / (material.SpoolWeight * 1000);
-        }
-        
-        _context.Entry(material).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-        return material;
+        return await _materialRepository.UpdateMaterialAsync(material);
     }
 
     public async Task DeleteMaterialAsync(int id)
     {
-        var material = await _context.Materials.FindAsync(id);
-        if (material != null)
-        {
-            material.IsActive = false;
-            await _context.SaveChangesAsync();
-        }
+        await _materialRepository.DeleteMaterialAsync(id);
     }
 
     public async Task<List<Cost>> GetCostsByPrintJobAsync(int printJobId)
     {
-        return await _context.Costs
-            .Where(c => c.PrintJobId == printJobId)
-            .OrderBy(c => c.CreatedAt)
-            .ToListAsync();
+        return await _costRepository.GetCostsByPrintJobAsync(printJobId);
     }
 
     public async Task<Cost> AddCostToPrintJobAsync(int printJobId, Cost cost)
     {
-        cost.PrintJobId = printJobId;
-        _context.Costs.Add(cost);
-        await _context.SaveChangesAsync();
-        return cost;
+        return await _costRepository.AddCostToPrintJobAsync(printJobId, cost);
     }
 
     public async Task DeleteCostAsync(int costId)
     {
-        var cost = await _context.Costs.FindAsync(costId);
-        if (cost != null)
-        {
-            _context.Costs.Remove(cost);
-            await _context.SaveChangesAsync();
-        }
+        await _costRepository.DeleteCostAsync(costId);
     }
 
     public async Task<List<Printer>> GetPrintersAsync()
     {
-        return await _context.Printers
-            .OrderBy(p => p.Name)
-            .ToListAsync();
+        return await _printerRepository.GetPrintersAsync();
     }
 
     public async Task<Printer?> GetPrinterByIdAsync(int id)
     {
-        return await _context.Printers.FindAsync(id);
+        return await _printerRepository.GetPrinterByIdAsync(id);
     }
 
     public async Task<Printer> CreatePrinterAsync(Printer printer)
     {
-        _context.Printers.Add(printer);
-        await _context.SaveChangesAsync();
-        return printer;
+        return await _printerRepository.CreatePrinterAsync(printer);
     }
 
     public async Task<Printer> UpdatePrinterAsync(Printer printer)
     {
-        _context.Entry(printer).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-        return printer;
+        return await _printerRepository.UpdatePrinterAsync(printer);
     }
 
     public async Task DeletePrinterAsync(int id)
     {
-        var printer = await _context.Printers.FindAsync(id);
-        if (printer != null)
-        {
-            _context.Printers.Remove(printer);
-            await _context.SaveChangesAsync();
-        }
+        await _printerRepository.DeletePrinterAsync(id);
     }
 } 

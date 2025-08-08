@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using printCostTracker.Data;
 using printCostTracker.Services;
+using printCostTracker.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<PrintCostTrackerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add PrintCostService
+// Add repositories and service
+builder.Services.AddScoped<IPrintJobRepository, PrintJobRepository>();
+builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<ICostRepository, CostRepository>();
+builder.Services.AddScoped<IPrinterRepository, PrinterRepository>();
 builder.Services.AddScoped<IPrintCostService, PrintCostService>();
 
 var app = builder.Build();
