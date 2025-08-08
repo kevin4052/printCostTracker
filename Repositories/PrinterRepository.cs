@@ -13,14 +13,9 @@ public interface IPrinterRepository
     Task DeletePrinterAsync(int id);
 }
 
-public class PrinterRepository : IPrinterRepository
+public class PrinterRepository(PrintCostTrackerContext context) : IPrinterRepository
 {
-    private readonly PrintCostTrackerContext _context;
-
-    public PrinterRepository(PrintCostTrackerContext context)
-    {
-        _context = context;
-    }
+    private readonly PrintCostTrackerContext _context = context;
 
     public async Task<List<Printer>> GetPrintersAsync()
     {

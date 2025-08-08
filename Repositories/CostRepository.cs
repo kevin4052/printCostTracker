@@ -11,14 +11,9 @@ public interface ICostRepository
     Task DeleteCostAsync(int costId);
 }
 
-public class CostRepository : ICostRepository
+public class CostRepository(PrintCostTrackerContext context) : ICostRepository
 {
-    private readonly PrintCostTrackerContext _context;
-
-    public CostRepository(PrintCostTrackerContext context)
-    {
-        _context = context;
-    }
+    private readonly PrintCostTrackerContext _context = context;
 
     public async Task<List<Cost>> GetCostsByPrintJobAsync(int printJobId)
     {

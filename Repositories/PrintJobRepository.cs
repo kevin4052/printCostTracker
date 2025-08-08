@@ -13,14 +13,9 @@ public interface IPrintJobRepository
     Task DeletePrintJobAsync(int id);
 }
 
-public class PrintJobRepository : IPrintJobRepository
+public class PrintJobRepository(PrintCostTrackerContext context) : IPrintJobRepository
 {
-    private readonly PrintCostTrackerContext _context;
-
-    public PrintJobRepository(PrintCostTrackerContext context)
-    {
-        _context = context;
-    }
+    private readonly PrintCostTrackerContext _context = context;
 
     public async Task<List<PrintJob>> GetPrintJobsAsync()
     {

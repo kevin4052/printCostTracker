@@ -1,110 +1,56 @@
-# Print Cost Tracker
+## Print Cost Tracker
 
-A web-based application for tracking and calculating the costs of 3D printing jobs. Built with ASP.NET Core 8.0 and SQLite, this application helps you manage materials, printers, and print jobs while automatically calculating costs based on material usage, electricity consumption, and other factors.
+A web app for tracking and estimating the costs of 3D printing jobs. Built with ASP.NET Core 8 and SQLite. Manage materials, printers, and print jobs with basic material cost calculations.
 
-## 🚀 Features
+### 🚀 Features
 
-- **Print Job Management**: Create, view, and track 3D printing jobs
-- **Material Tracking**: Manage different printing materials with cost per gram and density
-- **Printer Management**: Track multiple printers with specifications and power consumption
-- **Cost Calculation**: Automatic cost calculation based on material usage and electricity
-- **Database Management**: Easy database reset scripts for development
-- **Web Interface**: Clean, responsive web interface for easy access
+- **Print jobs**: Create and view print jobs
+- **Materials**: Manage materials with cost per gram/spool and color
+- **Printers**: Track printers and key specs (type, size, power)
+- **Cost calculation**: Calculates material cost from weight × cost/gram during job creation
+- **DB health endpoint**: `/api/test-db` to verify database connectivity
+- **Reset scripts**: Cross‑platform scripts to reset the SQLite database for development
 
-## 🛠️ Technology Stack
+### 🛠️ Technology Stack
 
-- **Backend**: ASP.NET Core 8.0
-- **Database**: SQLite with Entity Framework Core
-- **Frontend**: Razor Views with Bootstrap
-- **Architecture**: MVC pattern with service layer
-- **Development**: Cross-platform (Windows, Linux, macOS)
+- **Backend**: ASP.NET Core 8 (MVC)
+- **ORM/DB**: Entity Framework Core 8 + SQLite
+- **UI**: Razor Views + Bootstrap
+- **Pattern**: MVC with repository layer
+- **OS**: Works on Windows, macOS, Linux
 
-## 📋 Prerequisites
+### 📋 Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- Git (for cloning the repository)
-- A modern web browser
+- Git
 
-## 🚀 Quick Start
+### 🚀 Quick Start
 
-### 1. Clone the Repository
+1) Clone
 
 ```bash
 git clone <repository-url>
 cd printCostTracker
 ```
 
-### 2. Run the Application
+2) Run
 
 ```bash
 dotnet restore
 dotnet run
 ```
 
-### 3. Access the Application
+3) Open the app
 
-Open your browser and navigate to:
-- **Local**: https://localhost:5001 or http://localhost:5000
-- **Development**: The application will automatically create the database and seed it with sample data
+By default (from `Properties/launchSettings.json`):
+- HTTPS: https://localhost:7118
+- HTTP:  http://localhost:5031
 
-## 📊 Data Models
+On first run, the app will create the database and seed initial data (materials and printers).
 
-### PrintJob
-- **Name**: Job name and description
-- **Material**: Associated printing material
-- **Costs**: Breakdown of all costs (material, electricity, etc.)
-- **Timestamps**: Creation and completion dates
-- **Status**: Job progress tracking
+### 🔧 Configuration
 
-### Material
-- **Properties**: Name, description, color
-- **Cost**: Cost per gram
-- **Physical Properties**: Density (g/cm³)
-- **Type**: PLA, ABS, PETG, TPU, Resin, etc.
-
-### Printer
-- **Details**: Brand, model, serial number
-- **Specifications**: Build volume, printer type (FDM, SLA, etc.)
-- **Power**: Watts per hour for electricity cost calculation
-- **Status**: Active, inactive, in repair, etc.
-
-### Cost
-- **Breakdown**: Material cost, electricity cost, other expenses
-- **Calculation**: Automatic based on material usage and print time
-
-## 🗄️ Database Management
-
-### Development Reset
-
-For development purposes, you can completely reset the database:
-
-**Windows (PowerShell):**
-```powershell
-.\reset-database.ps1
-```
-
-**Linux/Mac (Bash):**
-```bash
-./reset-database.sh
-```
-
-### What Gets Reset
-- Deletes the SQLite database file
-- Removes all migration files
-- Cleans and rebuilds the project
-- Creates fresh database with sample data
-
-⚠️ **Warning**: This will permanently delete all data. Only use in development!
-
-### Sample Data Included
-- **Materials**: PLA, ABS, PETG, TPU, Resin
-- **Printers**: Ender 3 Pro, Elegoo Mars 3, Prusa i3 MK3S+
-- **Sample Jobs**: Test Cube, Phone Stand, Miniature Figure
-
-## 🔧 Configuration
-
-### Database Connection
-The application uses SQLite by default. The connection string is configured in `appsettings.json`:
+- Connection string in `appsettings.json`:
 
 ```json
 {
@@ -114,117 +60,94 @@ The application uses SQLite by default. The connection string is configured in `
 }
 ```
 
-### Environment-Specific Settings
-- `appsettings.json`: Default configuration
-- `appsettings.Development.json`: Development-specific settings
+- Environment: `ASPNETCORE_ENVIRONMENT=Development` in launch profiles
 
-## 📁 Project Structure
+### 📊 Data Models (overview)
+
+- **PrintJob**: `Name`, `Description?`, `MaterialId`, `MaterialWeight`, `EstimatedPrintTime`, `PrinterId?`, `TotalCost`, timestamps, `Costs[]`
+  - Material cost = `MaterialWeight × Material.CostPerGram`
+- **Material**: `Name`, `Description?`, `MaterialType` (int), `SpoolWeight`, `CostPerGram`, `CostPerSpool`, `Color?`, `IsActive`, timestamps
+- **Printer**: `Name`, `Description`, `Brand`, `Model`, `SerialNumber`, `Price`, `PurchaseDate`, `Location`, `Status`, `PrinterType`, `PrinterSize`, `PrintingLifetime`, `PrinterLifetimeCost`, `WattsPerHour`, `CostPerHour`
+- **Cost**: `Name`, `Description?`, `Amount`, `Type` (Material, Electricity, Labor, Maintenance, Other), `PrintJobId`, timestamp
+
+### 🗄️ Database
+
+- Created on startup via `EnsureCreated()` in `Program.cs`
+- Seeded in `Data/PrintCostTrackerContext.cs`:
+  - Materials: PLA, ABS, PETG
+  - Printers: BambuLab A1 Combo, Elegoo Mars 3
+
+### 🔁 Reset database (development only)
+
+- Windows (PowerShell):
+  ```powershell
+  .\reset-database.ps1
+  ```
+- Linux/macOS (Bash):
+  ```bash
+  ./reset-database.sh
+  ```
+
+What it does: deletes the SQLite DB, removes migrations (if any), cleans, restores, builds. This permanently deletes local data.
+
+### 🧭 Navigation & endpoints
+
+- Default route: `/{controller=Home}/{action=Index}/{id?}` → `Home/Index`
+- UI:
+  - `Materials` CRUD pages
+  - `Printers` CRUD pages
+  - `PrintJobs` index and create pages
+- Health check: `GET /api/test-db` returns JSON with DB status and counts
+
+### 📁 Project Structure
 
 ```
 printCostTracker/
-├── Controllers/           # MVC Controllers
+├── Controllers/
 │   ├── HomeController.cs
+│   ├── MaterialsController.cs
+│   ├── PrintersController.cs
 │   └── PrintJobsController.cs
-├── Models/               # Data Models
-│   ├── PrintJob.cs
+├── Data/
+│   └── PrintCostTrackerContext.cs
+├── Models/
+│   ├── Cost.cs
 │   ├── Material.cs
 │   ├── Printer.cs
-│   └── Cost.cs
-├── Services/             # Business Logic
-│   └── IPrintCostService.cs
-├── Data/                 # Database Context
-│   └── PrintCostTrackerContext.cs
-├── Views/                # Razor Views
-├── wwwroot/              # Static Files
-├── Tools/                # Utility Scripts
-├── Program.cs            # Application Entry Point
-├── appsettings.json      # Configuration
+│   └── PrintJob.cs
+├── Repositories/
+│   ├── CostRepository.cs
+│   ├── MaterialRepository.cs
+│   ├── PrinterRepository.cs
+│   └── PrintJobRepository.cs
+├── Views/
+├── wwwroot/
+├── Program.cs
+├── appsettings.json
+├── appsettings.Development.json
+├── reset-database.ps1
+├── reset-database.sh
 └── printCostTracker.csproj
 ```
 
-## 🧪 Testing
+### 🚀 Deployment
 
-### Database Connection Test
-Test the database connection by visiting:
-```
-/api/test-db
-```
+- Local dev: `dotnet run`
+- Publish: `dotnet publish -c Release`
 
-This endpoint returns:
-- Database connection status
-- Count of materials and print jobs
-- Any error messages if connection fails
+### 🆘 Troubleshooting
 
-## 🚀 Deployment
-
-### Local Development
-```bash
-dotnet run
-```
-
-### Production Build
-```bash
-dotnet publish -c Release
-```
-
-### Docker (Future Enhancement)
-```bash
-# Dockerfile can be added for containerized deployment
-docker build -t print-cost-tracker .
-docker run -p 8080:80 print-cost-tracker
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-### Common Issues
-
-**Database Locked**
-- Stop all running instances of the application
-- Wait a few seconds
-- Run the reset script again
-
-**Build Errors After Reset**
-```bash
-rm -rf bin obj
-dotnet restore
-dotnet build
-```
-
-**PowerShell Execution Policy (Windows)**
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-### Getting Help
-- Check the [Database Reset Guide](README_DatabaseReset.md) for detailed reset instructions
-- Review the application logs for error details
-- Test database connection using the `/api/test-db` endpoint
-
-## 🔮 Future Enhancements
-
-- [ ] User authentication and authorization
-- [ ] Advanced cost analytics and reporting
-- [ ] Print job scheduling
-- [ ] Material inventory management
-- [ ] Printer maintenance tracking
-- [ ] API endpoints for external integrations
-- [ ] Mobile-responsive design improvements
-- [ ] Export functionality (PDF, Excel)
-- [ ] Multi-tenant support
-- [ ] Docker containerization
+- Database locked: stop all running instances, wait a few seconds, retry or run the reset script
+- Clean build:
+  ```bash
+  rm -rf bin obj
+  dotnet restore && dotnet build
+  ```
+- Windows PowerShell policy:
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
 
 ---
 
-**Happy 3D Printing! 🖨️** 
+Happy 3D printing! 🖨️ 

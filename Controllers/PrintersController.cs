@@ -2,30 +2,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using printCostTracker.Data;
 using printCostTracker.Models;
-using printCostTracker.Services;
+using printCostTracker.Repositories;
 
 namespace printCostTracker.Controllers;
 
-public class PrintersController : Controller
+public class PrintersController(IPrinterRepository printerRepository, PrintCostTrackerContext context) : Controller
 {
-    private readonly IPrintCostService _printCostService;
-    private readonly PrintCostTrackerContext _context;
-
-    public PrintersController(IPrintCostService printCostService, PrintCostTrackerContext context)
-    {
-        _printCostService = printCostService;
-        _context = context;
-    }
+    private readonly IPrinterRepository _printerRepository = printerRepository;
+    private readonly PrintCostTrackerContext _context = context;
 
     public async Task<IActionResult> Index()
     {
-        var printers = await _printCostService.GetPrintersAsync();
+        var printers = await _printerRepository.GetPrintersAsync();
         return View(printers);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var printer = await _printCostService.GetPrinterByIdAsync(id);
+        var printer = await _printerRepository.GetPrinterByIdAsync(id);
         if (printer == null)
         {
             return NotFound();
@@ -44,7 +38,7 @@ public class PrintersController : Controller
     {
         if (ModelState.IsValid)
         {
-            await _printCostService.CreatePrinterAsync(printer);
+            await _printerRepository.CreatePrinterAsync(printer);
             return RedirectToAction(nameof(Index));
         }
         return View(printer);
@@ -52,7 +46,7 @@ public class PrintersController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        var printer = await _printCostService.GetPrinterByIdAsync(id);
+        var printer = await _printerRepository.GetPrinterByIdAsync(id);
         if (printer == null)
         {
             return NotFound();
@@ -73,7 +67,7 @@ public class PrintersController : Controller
         {
             try
             {
-                await _printCostService.UpdatePrinterAsync(printer);
+                await _printerRepository.UpdatePrinterAsync(printer);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -93,7 +87,7 @@ public class PrintersController : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        var printer = await _printCostService.GetPrinterByIdAsync(id);
+        var printer = await _printerRepository.GetPrinterByIdAsync(id);
         if (printer == null)
         {
             return NotFound();
@@ -105,7 +99,7 @@ public class PrintersController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await _printCostService.DeletePrinterAsync(id);
+        await _printerRepository.DeletePrinterAsync(id);
         return RedirectToAction(nameof(Index));
     }
 

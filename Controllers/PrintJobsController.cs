@@ -2,30 +2,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using printCostTracker.Data;
 using printCostTracker.Models;
+using printCostTracker.Repositories;
 using printCostTracker.Services;
 
 namespace printCostTracker.Controllers;
 
-public class PrintJobsController : Controller
+public class PrintJobsController(
+    IPrintJobRepository printJobRepository, 
+    IPrinterRepository printerRepository, 
+    IMaterialRepository materialRepository, 
+    PrintCostTrackerContext context) : Controller
 {
-    private readonly IPrintCostService _printCostService;
-    private readonly PrintCostTrackerContext _context;
-
-    public PrintJobsController(IPrintCostService printCostService, PrintCostTrackerContext context)
-    {
-        _printCostService = printCostService;
-        _context = context;
-    }
+    private readonly IPrintJobRepository _printJobRepository = printJobRepository;
+    private readonly IPrinterRepository _printerRepository = printerRepository;
+    private readonly IMaterialRepository _materialRepository = materialRepository;
+    private readonly PrintCostTrackerContext _context = context;
 
     public async Task<IActionResult> Index()
     {
-        var printJobs = await _printCostService.GetPrintJobsAsync();
+        var printJobs = await _printJobRepository.GetPrintJobsAsync();
         return View(printJobs);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var printJob = await _printCostService.GetPrintJobByIdAsync(id);
+        var printJob = await _printJobRepository.GetPrintJobByIdAsync(id);
         if (printJob == null)
         {
             return NotFound();
@@ -35,8 +36,8 @@ public class PrintJobsController : Controller
 
     public async Task<IActionResult> Create()
     {
-        ViewBag.Materials = await _printCostService.GetMaterialsAsync();
-        ViewBag.Printers = await _printCostService.GetPrintersAsync();
+        ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
+        ViewBag.Printers = await _printerRepository.GetPrintersAsync();
         return View();
     }
 
@@ -46,22 +47,22 @@ public class PrintJobsController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ViewBag.Materials = await _printCostService.GetMaterialsAsync();
-            ViewBag.Printers = await _printCostService.GetPrintersAsync();
+            ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
+            ViewBag.Printers = await _printerRepository.GetPrintersAsync();
             return View(printJob);
         }
 
         // Calculate total cost based on material weight
         if (printJob.MaterialWeight > 0 && printJob.MaterialId > 0)
         {
-            var material = await _printCostService.GetMaterialByIdAsync(printJob.MaterialId);
+            var material = await _materialRepository.GetMaterialByIdAsync(printJob.MaterialId);
             if (material != null)
             {
                 printJob.TotalCost = printJob.MaterialWeight * material.CostPerGram;
             }
         }
             
-        await _printCostService.CreatePrintJobAsync(printJob);
+        await _printJobRepository.CreatePrintJobAsync(printJob);
         return RedirectToAction(nameof(Index));        
     }
 

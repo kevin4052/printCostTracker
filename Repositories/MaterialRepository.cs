@@ -14,14 +14,9 @@ public interface IMaterialRepository
     Task DeleteMaterialAsync(int id);
 }
 
-public class MaterialRepository : IMaterialRepository
+public class MaterialRepository(PrintCostTrackerContext context) : IMaterialRepository
 {
-    private readonly PrintCostTrackerContext _context;
-
-    public MaterialRepository(PrintCostTrackerContext context)
-    {
-        _context = context;
-    }
+    private readonly PrintCostTrackerContext _context = context;
 
     public async Task<List<Material>> GetActiveMaterialsAsync()
     {

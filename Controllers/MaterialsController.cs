@@ -2,30 +2,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using printCostTracker.Data;
 using printCostTracker.Models;
-using printCostTracker.Services;
+using printCostTracker.Repositories;
 
 namespace printCostTracker.Controllers;
 
-public class MaterialsController : Controller
+public class MaterialsController(IMaterialRepository materialRepository, PrintCostTrackerContext context) : Controller
 {
-    private readonly IPrintCostService _printCostService;
-    private readonly PrintCostTrackerContext _context;
-
-    public MaterialsController(IPrintCostService printCostService, PrintCostTrackerContext context)
-    {
-        _printCostService = printCostService;
-        _context = context;
-    }
+    private readonly IMaterialRepository _materialRepository = materialRepository;
+    private readonly PrintCostTrackerContext _context = context;
 
     public async Task<IActionResult> Index()
     {
-        var materials = await _printCostService.GetMaterialsAsync();
+        var materials = await _materialRepository.GetMaterialsAsync();
         return View(materials);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-        var material = await _printCostService.GetMaterialByIdAsync(id);
+        var material = await _materialRepository.GetMaterialByIdAsync(id);
         if (material == null)
         {
             return NotFound();
@@ -44,7 +38,7 @@ public class MaterialsController : Controller
     {
         if (ModelState.IsValid)
         {
-            await _printCostService.CreateMaterialAsync(material);
+            await _materialRepository.CreateMaterialAsync(material);
             return RedirectToAction(nameof(Index));
         }
         return View(material);
@@ -52,7 +46,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        var material = await _printCostService.GetMaterialByIdAsync(id);
+        var material = await _materialRepository.GetMaterialByIdAsync(id);
         if (material == null)
         {
             return NotFound();
@@ -73,7 +67,7 @@ public class MaterialsController : Controller
         {
             try
             {
-                await _printCostService.UpdateMaterialAsync(material);
+                await _materialRepository.UpdateMaterialAsync(material);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -93,7 +87,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        var material = await _printCostService.GetMaterialByIdAsync(id);
+        var material = await _materialRepository.GetMaterialByIdAsync(id);
         if (material == null)
         {
             return NotFound();
@@ -105,7 +99,7 @@ public class MaterialsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        await _printCostService.DeleteMaterialAsync(id);
+        await _materialRepository.DeleteMaterialAsync(id);
         return RedirectToAction(nameof(Index));
     }
 
