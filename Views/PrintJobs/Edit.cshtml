@@ -1,15 +1,17 @@
 @model printCostTracker.Models.PrintJob
 
 @{
-    ViewData["Title"] = "Create Print Job";
+    ViewData["Title"] = "Edit Print Job";
 }
 
-<h1>Create Print Job</h1>
+<h1>Edit Print Job</h1>
 
 <div class="row">
     <div class="col-md-6">
-        <form asp-action="Create">
+        <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
             
             <div class="form-group mb-3">
                 <label asp-for="Name" class="control-label"></label>
@@ -36,20 +38,20 @@
             </div>
             
             <div class="form-group mb-3">
-                <label for="MaterialWeight" class="control-label">Material Weight (grams)</label>
-                <input type="number" id="MaterialWeight" name="MaterialWeight" class="form-control" step="0.01" min="0" />
-                <small class="form-text text-muted">Enter the weight of material used for this print job</small>
+                <label asp-for="MaterialWeight" class="control-label">Material Weight (grams)</label>
+                <input asp-for="MaterialWeight" class="form-control" type="number" step="0.01" min="0" id="MaterialWeight" />
+                <span asp-validation-for="MaterialWeight" class="text-danger"></span>
             </div>
             
             <div class="form-group mb-3">
-                <label for="EstimatedPrintTime" class="control-label">Estimated Print Time (hours)</label>
-                <input type="number" id="EstimatedPrintTime" name="EstimatedPrintTime" class="form-control" step="0.1" min="0" />
-                <small class="form-text text-muted">Enter the estimated time to complete this print job</small>
+                <label asp-for="EstimatedPrintTime" class="control-label">Estimated Print Time (hours)</label>
+                <input asp-for="EstimatedPrintTime" class="form-control" type="number" step="0.1" min="0" />
+                <span asp-validation-for="EstimatedPrintTime" class="text-danger"></span>
             </div>
             
             <div class="form-group mb-3">
-                <label for="PrinterId" class="control-label">Printer</label>
-                <select id="PrinterId" name="PrinterId" class="form-control">
+                <label asp-for="PrinterId" class="control-label">Printer</label>
+                <select asp-for="PrinterId" class="form-control">
                     <option value="">-- Select Printer --</option>
                     @if (ViewBag.Printers != null)
                     {
@@ -59,17 +61,31 @@
                         }
                     }
                 </select>
-                <small class="form-text text-muted">Select the printer to use for this job</small>
+                <span asp-validation-for="PrinterId" class="text-danger"></span>
             </div>
             
             <div class="form-group mb-3">
-                <label for="PrintSettings" class="control-label">Print Settings</label>
-                <textarea id="PrintSettings" name="PrintSettings" class="form-control" rows="2" placeholder="Layer height, infill, speed, etc."></textarea>
-                <small class="form-text text-muted">Optional: Document important print settings</small>
+                <label asp-for="PrintSettings" class="control-label">Print Settings</label>
+                <textarea asp-for="PrintSettings" class="form-control" rows="2" placeholder="Layer height, infill, speed, etc."></textarea>
+                <span asp-validation-for="PrintSettings" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="TotalCost" class="control-label">Total Cost ($)</label>
+                <input asp-for="TotalCost" class="form-control" type="number" step="0.01" min="0" id="TotalCost" readonly />
+                <small class="form-text text-muted">Calculated automatically based on material cost</small>
+                <span asp-validation-for="TotalCost" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="CompletedAt" class="control-label">Completed At</label>
+                <input asp-for="CompletedAt" class="form-control" type="datetime-local" />
+                <small class="form-text text-muted">Leave empty if job is still in progress</small>
+                <span asp-validation-for="CompletedAt" class="text-danger"></span>
             </div>
             
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
@@ -97,6 +113,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const materialSelect = document.getElementById('MaterialId');
             const weightInput = document.getElementById('MaterialWeight');
+            const totalCostInput = document.getElementById('TotalCost');
             const costEstimation = document.getElementById('costEstimation');
             
             function updateCostEstimation() {
@@ -106,6 +123,8 @@
                 if (selectedOption && selectedOption.value && weight > 0) {
                     const costPerGram = parseFloat(selectedOption.getAttribute('data-cost-per-gram'));
                     const estimatedCost = weight * costPerGram;
+                    
+                    totalCostInput.value = estimatedCost.toFixed(2);
                     
                     costEstimation.innerHTML = `
                         <div class="row">
@@ -122,12 +141,16 @@
                         <small class="text-muted">This is an estimate based on material cost only. Additional costs (electricity, labor, etc.) will be added separately.</small>
                     `;
                 } else {
+                    totalCostInput.value = '';
                     costEstimation.innerHTML = '<p class="text-muted">Select a material and enter weight to see cost estimation</p>';
                 }
             }
             
             materialSelect.addEventListener('change', updateCostEstimation);
             weightInput.addEventListener('input', updateCostEstimation);
+            
+            // Calculate on page load
+            updateCostEstimation();
         });
     </script>
-} 
+}

@@ -10,15 +10,6 @@
     <a asp-action="Create" class="btn btn-primary">Create New Print Job</a>
 </p>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="alert alert-info">
-            <strong>Database Test:</strong> 
-            <a href="/api/test-db" target="_blank">Test Database Connection</a>
-        </div>
-    </div>
-</div>
-
 @if (Model.Any())
 {
     <table class="table">
@@ -56,6 +47,8 @@
                     </td>
                     <td>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
             }

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using printCostTracker.Data;
 using printCostTracker.Models;
 using printCostTracker.Repositories;
-using printCostTracker.Services;
 
 namespace printCostTracker.Controllers;
 
@@ -64,6 +63,86 @@ public class PrintJobsController(
             
         await _printJobRepository.CreatePrintJobAsync(printJob);
         return RedirectToAction(nameof(Index));        
+    }
+
+    public async Task<IActionResult> Edit(int id)
+    {
+        var printJob = await _printJobRepository.GetPrintJobByIdAsync(id);
+        if (printJob == null)
+        {
+            return NotFound();
+        }
+        
+        ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
+        ViewBag.Printers = await _printerRepository.GetPrintersAsync();
+        return View(printJob);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MaterialId,MaterialWeight,EstimatedPrintTime,PrinterId,PrintSettings,TotalCost,CompletedAt,CreatedAt")] PrintJob printJob)
+    {
+        if (id != printJob.Id)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+            try
+            {
+                // Recalculate total cost if material or weight changed
+                if (printJob.MaterialWeight > 0 && printJob.MaterialId > 0)
+                {
+                    var material = await _materialRepository.GetMaterialByIdAsync(printJob.MaterialId);
+                    if (material != null)
+                    {
+                        printJob.TotalCost = printJob.MaterialWeight * material.CostPerGram;
+                    }
+                }
+                
+                await _printJobRepository.UpdatePrintJobAsync(printJob);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PrintJobExists(printJob.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        
+        ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
+        ViewBag.Printers = await _printerRepository.GetPrintersAsync();
+        return View(printJob);
+    }
+
+    public async Task<IActionResult> Delete(int id)
+    {
+        var printJob = await _printJobRepository.GetPrintJobByIdAsync(id);
+        if (printJob == null)
+        {
+            return NotFound();
+        }
+        return View(printJob);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        await _printJobRepository.DeletePrintJobAsync(id);
+        return RedirectToAction(nameof(Index));
+    }
+
+    private bool PrintJobExists(int id)
+    {
+        return _context.PrintJobs.Any(e => e.Id == id);
     }
 
     // API endpoint to test database connection
