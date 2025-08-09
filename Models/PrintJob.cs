@@ -19,15 +19,6 @@ public class PrintJob
     
     public decimal TotalCost { get; set; }
     
-    public int MaterialId { get; set; }
-    public Material? Material { get; set; } = null!;
-    
-    [Range(0, double.MaxValue, ErrorMessage = "Material weight must be a positive number")]
-    public decimal MaterialWeight { get; set; }
-    
-    [Range(0, double.MaxValue, ErrorMessage = "Estimated print time must be a positive number")]
-    public decimal EstimatedPrintTime { get; set; }
-    
     public int? PrinterId { get; set; }
     public Printer? Printer { get; set; }
     
@@ -35,4 +26,6 @@ public class PrintJob
     public string? PrintSettings { get; set; }
     
     public List<Cost> Costs { get; set; } = new();
+
+    public List<Plate> Plates { get; set; } = new();
 } 

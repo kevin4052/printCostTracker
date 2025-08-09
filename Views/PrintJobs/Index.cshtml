@@ -16,8 +16,8 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Material</th>
-                <th>Weight</th>
+                <th>Plates</th>
+                <th>Parts</th>
                 <th>Printer</th>
                 <th>Total Cost</th>
                 <th>Created</th>
@@ -30,8 +30,8 @@
             {
                 <tr>
                     <td>@item.Name</td>
-                    <td>@item.Material?.Name</td>
-                    <td>@(item.MaterialWeight > 0 ? $"{item.MaterialWeight:F1}g" : "-")</td>
+                    <td>@(item.Plates?.Count ?? 0)</td>
+                    <td>@(item.Plates?.SelectMany(p => p.Parts).Count() ?? 0)</td>
                     <td>@item.Printer?.Name</td>
                     <td>$@item.TotalCost.ToString("F2")</td>
                     <td>@item.CreatedAt.ToString("MM/dd/yyyy HH:mm")</td>

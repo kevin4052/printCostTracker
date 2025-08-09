@@ -20,9 +20,9 @@ public class PrintJobRepository(PrintCostTrackerContext context) : IPrintJobRepo
     public async Task<List<PrintJob>> GetPrintJobsAsync()
     {
         return await _context.PrintJobs
-            .Include(p => p.Material)
             .Include(p => p.Printer)
             .Include(p => p.Costs)
+            .Include(p => p.Plates)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
     }
@@ -30,9 +30,9 @@ public class PrintJobRepository(PrintCostTrackerContext context) : IPrintJobRepo
     public async Task<PrintJob?> GetPrintJobByIdAsync(int id)
     {
         return await _context.PrintJobs
-            .Include(p => p.Material)
             .Include(p => p.Printer)
             .Include(p => p.Costs)
+            .Include(p => p.Plates)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 

@@ -35,32 +35,21 @@ public class PrintJobsController(
 
     public async Task<IActionResult> Create()
     {
-        ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
         ViewBag.Printers = await _printerRepository.GetPrintersAsync();
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Name,Description,MaterialId,MaterialWeight,EstimatedPrintTime,PrinterId,PrintSettings")] PrintJob printJob)
+    public async Task<IActionResult> Create([Bind("Name,Description,PrinterId,PrintSettings")] PrintJob printJob)
     {
         if (!ModelState.IsValid)
         {
-            ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
             ViewBag.Printers = await _printerRepository.GetPrintersAsync();
             return View(printJob);
         }
 
-        // Calculate total cost based on material weight
-        if (printJob.MaterialWeight > 0 && printJob.MaterialId > 0)
-        {
-            var material = await _materialRepository.GetMaterialByIdAsync(printJob.MaterialId);
-            if (material != null)
-            {
-                printJob.TotalCost = printJob.MaterialWeight * material.CostPerGram;
-            }
-        }
-            
+        // Initial total cost will be 0. Additional costs can be added separately via Costs entries
         await _printJobRepository.CreatePrintJobAsync(printJob);
         return RedirectToAction(nameof(Index));        
     }
@@ -73,14 +62,13 @@ public class PrintJobsController(
             return NotFound();
         }
         
-        ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
         ViewBag.Printers = await _printerRepository.GetPrintersAsync();
         return View(printJob);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,MaterialId,MaterialWeight,EstimatedPrintTime,PrinterId,PrintSettings,TotalCost,CompletedAt,CreatedAt")] PrintJob printJob)
+    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,PrinterId,PrintSettings,TotalCost,CompletedAt,CreatedAt")] PrintJob printJob)
     {
         if (id != printJob.Id)
         {
@@ -91,16 +79,6 @@ public class PrintJobsController(
         {
             try
             {
-                // Recalculate total cost if material or weight changed
-                if (printJob.MaterialWeight > 0 && printJob.MaterialId > 0)
-                {
-                    var material = await _materialRepository.GetMaterialByIdAsync(printJob.MaterialId);
-                    if (material != null)
-                    {
-                        printJob.TotalCost = printJob.MaterialWeight * material.CostPerGram;
-                    }
-                }
-                
                 await _printJobRepository.UpdatePrintJobAsync(printJob);
             }
             catch (DbUpdateConcurrencyException)
@@ -117,7 +95,6 @@ public class PrintJobsController(
             return RedirectToAction(nameof(Index));
         }
         
-        ViewBag.Materials = await _materialRepository.GetMaterialsAsync();
         ViewBag.Printers = await _printerRepository.GetPrintersAsync();
         return View(printJob);
     }

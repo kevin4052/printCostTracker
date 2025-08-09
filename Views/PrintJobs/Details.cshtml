@@ -15,14 +15,11 @@
         <dt class="col-sm-2">Description</dt>
         <dd class="col-sm-10">@(string.IsNullOrEmpty(Model.Description) ? "-" : Model.Description)</dd>
 
-        <dt class="col-sm-2">Material</dt>
-        <dd class="col-sm-10">@(Model.Material?.Name ?? "-")</dd>
+        <dt class="col-sm-2">Plates</dt>
+        <dd class="col-sm-10">@(Model.Plates?.Count ?? 0)</dd>
 
-        <dt class="col-sm-2">Material Weight</dt>
-        <dd class="col-sm-10">@(Model.MaterialWeight > 0 ? $"{Model.MaterialWeight:F1}g" : "-")</dd>
-
-        <dt class="col-sm-2">Estimated Print Time</dt>
-        <dd class="col-sm-10">@(Model.EstimatedPrintTime > 0 ? $"{Model.EstimatedPrintTime:F1} hours" : "-")</dd>
+        <dt class="col-sm-2">Parts</dt>
+        <dd class="col-sm-10">@(Model.Plates?.SelectMany(p => p.Parts).Count() ?? 0)</dd>
 
         <dt class="col-sm-2">Printer</dt>
         <dd class="col-sm-10">@(Model.Printer?.Name ?? "-")</dd>

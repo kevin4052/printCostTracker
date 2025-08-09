@@ -14,18 +14,14 @@ public class PrintCostTrackerContext : DbContext
     public DbSet<Material> Materials { get; set; }
     public DbSet<Cost> Costs { get; set; }
     public DbSet<Printer> Printers { get; set; }
+    public DbSet<Plate> Plates { get; set; }
+    public DbSet<Part> Parts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         // Configure relationships
-        modelBuilder.Entity<PrintJob>()
-            .HasOne(p => p.Material)
-            .WithMany(m => m.PrintJobs)
-            .HasForeignKey(p => p.MaterialId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         modelBuilder.Entity<PrintJob>()
             .HasOne(p => p.Printer)
             .WithMany()
@@ -56,12 +52,8 @@ public class PrintCostTrackerContext : DbContext
             .HasPrecision(10, 2);
 
         modelBuilder.Entity<PrintJob>()
-            .Property(p => p.MaterialWeight)
-            .HasPrecision(10, 2);
-
-        modelBuilder.Entity<PrintJob>()
-            .Property(p => p.EstimatedPrintTime)
-            .HasPrecision(8, 2);
+            .Property(p => p.PrintSettings)
+            .HasMaxLength(1000);
 
         modelBuilder.Entity<Cost>()
             .Property(c => c.Amount)
@@ -156,25 +148,35 @@ public class PrintCostTrackerContext : DbContext
             .Property(p => p.PrinterSize)
             .HasMaxLength(50);
 
-        // Configure PrinterType enum
-        modelBuilder.Entity<Printer>()
-            .Property(p => p.PrinterType)
-            .HasConversion<string>();
+        // MaterialType is an int in the current model, no conversion needed
 
-        // Configure PrinterSize enum
-        modelBuilder.Entity<Printer>()
-            .Property(p => p.PrinterSize)
-            .HasConversion<string>();
+        // Configure PrintJob -> Plates (shadow FK) and Plate -> Parts (shadow FK)
+        modelBuilder.Entity<PrintJob>()
+            .HasMany(pj => pj.Plates)
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure PrinterStatus enum
-        modelBuilder.Entity<Printer>()
-            .Property(p => p.Status)
-            .HasConversion<string>();
+        modelBuilder.Entity<Plate>()
+            .HasMany(pl => pl.Parts)
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
 
-        // Configure MaterialType enum
-        modelBuilder.Entity<Material>()
-            .Property(m => m.MaterialType)
-            .HasConversion<int>();
+        // Configure Part -> PartMaterial owned collection with reference to Material
+        modelBuilder.Entity<Part>().OwnsMany(
+            p => p.PartMaterial,
+            pm =>
+            {
+                pm.ToTable("PartMaterials");
+                pm.WithOwner().HasForeignKey("PartId");
+                pm.Property<int>("Id");
+                pm.HasKey("Id");
+                pm.Property(x => x.MaterialWeight).IsRequired();
+                pm.HasOne(x => x.Material)
+                    .WithMany()
+                    .HasForeignKey("MaterialId")
+                    .OnDelete(DeleteBehavior.Restrict);
+            }
+        );
 
         // Seed some initial data
         modelBuilder.Entity<Material>().HasData(
@@ -237,29 +239,29 @@ public class PrintCostTrackerContext : DbContext
                 PrinterType = "FDM",
                 PrinterSize = "_256x256x256",
                 PrintingLifetime = 3000,
-                PrinterLifetimeCost = 0,
+                PrinterLifetimeCost = 250,
                 WattsPerHour = 120,
                 CostPerHour = 0.27m
             },
             new Printer
             {
                 Id = 2,
-                Name = "Elegoo Mars 3",
-                Description = "Resin 3D printer for detailed prints",
-                Brand = "Elegoo",
-                Model = "Mars 3",
-                SerialNumber = "EM001",
-                Price = "199.99",
-                PurchaseDate = "2023-03-20",
+                Name = "Prusa MK4S",
+                Description = "FDM 3D printer for detailed prints",
+                Brand = "Prusa",
+                Model = "MK4S",
+                SerialNumber = "PR001",
+                Price = "1000.00",
+                PurchaseDate = "2024-03-20",
                 Location = "Workshop B",
                 Status = "Active",
                 Notes = "Used for detailed miniatures",
-                PrinterType = "SLA",
-                PrinterSize = "_143x89x165",
-                PrintingLifetime = 500,
-                PrinterLifetimeCost = 0,
-                WattsPerHour = 150,
-                CostPerHour = 1
+                PrinterType = "FDM",
+                PrinterSize = "_250x210x220",
+                PrintingLifetime = 5000,
+                PrinterLifetimeCost = 350,
+                WattsPerHour = 120,
+                CostPerHour = 0.27m
             }
         );
     }

@@ -16,10 +16,10 @@ public class Material
     public int MaterialType { get; set; }
 
     public decimal SpoolWeight { get; set; } // kg
-    
-    public decimal CostPerGram { get; set; } // $/g
-    
+
     public decimal CostPerSpool { get; set; } // $
+    
+    public decimal CostPerGram { get; set; } // $/g    
     
     [StringLength(50)]
     public string? Color { get; set; }
@@ -27,8 +27,6 @@ public class Material
     public bool IsActive { get; set; } = true;
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-    public List<PrintJob> PrintJobs { get; set; } = new();
 } 
 
 enum MaterialType
